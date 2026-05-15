@@ -1,9 +1,12 @@
-let express = require("express");
-let app = express();
-let authRouter = require("./routes/auth.routes");
-let profileRouter = require("./routes/profile.routes");
-let projectsRouter = require("./routes/projects.routes");
-let blogsRouter = require("./routes/blogs.routes");
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+
+const authRouter = require("./routes/auth.routes");
+const profileRouter = require("./routes/profile.routes");
+const projectsRouter = require("./routes/projects.routes");
+const blogsRouter = require("./routes/blogs.routes");
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
@@ -15,35 +18,39 @@ const allowedOrigins = [
   "http://127.0.0.1:4173",
 ].filter(Boolean);
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (mobile apps, postman, curl)
+      if (!origin) {
+        return callback(null, true);
+      }
 
-  if (origin && allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin","*");
-  }
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
 
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-
-  next();
-});
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json());
+
 app.use("/api/auth", authRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/blogs", blogsRouter);
+
 app.use((err, req, res, next) => {
-  let statusCode = err.statusCode || 500;
-  let message = err.message || "Internal server error";
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal server error";
+
   console.log("errors", err.message);
+
   res.status(statusCode).json({
-    message: message,
+    message,
   });
 });
 
