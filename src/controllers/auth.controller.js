@@ -12,10 +12,14 @@ let registerController = asyncHandler(async (req, res) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    maxAge: 24*60 * 60 * 1000,
+    sameSite: "none",
+    secure: true,
+    maxAge: 24 * 60 * 60 * 1000,
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
+    sameSite: "none",
+    secure: true,
     maxAge: 168 * 60 * 60 * 1000,
   });
   return res
@@ -28,10 +32,14 @@ let loginController = asyncHandler(async (req, res) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    maxAge: 24*60 * 60 * 1000,
+    sameSite: "none",
+    secure: true,
+    maxAge: 24 * 60 * 60 * 1000,
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
+    sameSite: "none",
+    secure: true,
     maxAge: 168 * 60 * 60 * 1000,
   });
   return res.status(200).json(new ApiResponse("user loggedin successfully", user));
